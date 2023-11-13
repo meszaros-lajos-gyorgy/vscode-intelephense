@@ -108,7 +108,6 @@ export async function activate(context: ExtensionContext) {
 
 	languageClient.start().then(() => {
 		registerNotificationListeners();
-		showStartMessage(context);
 	});
 }
 
@@ -171,28 +170,6 @@ function createClient(context:ExtensionContext, middleware:IntelephenseMiddlewar
 	return languageClient;
 }
 
-function showStartMessage(context: ExtensionContext) {
-	const globalVersionMementoKey = 'intelephenseVersion';
-	let key = context.globalState.get<string>(LICENCE_MEMENTO_KEY);
-	const lastVersion = context.globalState.get<string>(globalVersionMementoKey);
-	const open = 'Open';
-	const dismiss = 'Dismiss';
-	if (key || (lastVersion && !semver.lt(lastVersion, VERSION))) {
-		return;
-	}
-	window.showInformationMessage(
-		`Intelephense updated to ${VERSION}.\nSupport the development of this extension and access other great features by purchasing a licence at https://intelephense.com.`,
-		open, 
-		dismiss
-	).then(value => {
-		if(value === open) {
-			env.openExternal(Uri.parse('https://intelephense.com'));
-		} else {
-			context.globalState.update(globalVersionMementoKey, VERSION);
-		}
-	});
-}
-
 export function deactivate() {
 	if (!languageClient) {
 		return Promise.resolve();
@@ -208,7 +185,6 @@ function indexWorkspace() {
 		languageClient = createClient(extensionContext, middleware, true);
 		languageClient.start().then(() => {
             registerNotificationListeners();
-            showStartMessage(extensionContext);
         });
 	});
 }
@@ -255,7 +231,6 @@ function enterLicenceKey(context:ExtensionContext) {
                 languageClient = createClient(context, middleware, true);
                 languageClient.start().then(() => {
                     registerNotificationListeners();
-                    showStartMessage(context);
                 });
             }
 		}
